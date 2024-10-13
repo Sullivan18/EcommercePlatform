@@ -1,6 +1,7 @@
 {
   "name": "ecommerce",
   "version": "0.1.0",
+  "homepage": "https://sullivan18.github.io/EcommercePlatform/",
   "private": true,
   "dependencies": {
     "@stripe/stripe-js": "^4.8.0",
@@ -17,6 +18,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -42,6 +45,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
+    "gh-pages": "^6.2.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13"
   }

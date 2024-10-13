@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom'; // Removido BrowserRouter para evitar duplicidade
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -47,13 +47,13 @@ const App = () => {
             <Navbar />
             <AnimatePresence mode="wait">
               <motion.div
-                key={location.pathname}
+                key={location.key} // Use location.key para forçar o React a atualizar
                 initial="initial"
                 animate="animate"
                 exit="exit"
                 variants={pageTransition}
               >
-                <Routes location={location} key={location.pathname}>
+                <Routes location={location} key={location.key}>
                   <Route path="/" element={<Home />} />
                   <Route path="/products" element={<Products />} />
                   <Route path="/cart" element={<Cart />} />
