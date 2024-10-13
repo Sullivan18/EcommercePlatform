@@ -1,68 +1,82 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase';  // Importe o auth
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useNavigate, Link } from 'react-router-dom'; // Importando Link e useNavigate
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true); // Alternar entre login e registro
+  const [loading, setLoading] = useState(false);
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const navigate = useNavigate(); // Para redirecionar após o login
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
 
-    if (isLogin) {
-      // Lógica de login
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Login realizado com sucesso!");
-      } catch (error) {
-        alert("Erro no login: " + error.message);
-      }
-    } else {
-      // Lógica de registro
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Conta criada com sucesso!");
-      } catch (error) {
-        alert("Erro ao criar conta: " + error.message);
-      }
+    try {
+      // Autenticação com Firebase usando email e senha
+      await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+      setLoading(false);
+      navigate('/'); // Redireciona para a Home após o login bem-sucedido
+    } catch (error) {
+      setLoading(false);
+      setError('Erro ao fazer login. Verifique suas credenciais.');
     }
   };
 
   return (
-    <div className="container mx-auto py-16 px-8">
-      <h2 className="text-4xl font-bold text-center mb-12">{isLogin ? "Login" : "Criar Conta"}</h2>
-      <form className="max-w-md mx-auto bg-white p-8 shadow-lg rounded-lg" onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg"
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+              <input 
+                type="email" 
+                value={credentials.email} 
+                onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                placeholder="Insira seu email"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-gray-700 text-sm font-bold mb-2">Senha</label>
+              <input 
+                type="password" 
+                value={credentials.password} 
+                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                placeholder="Insira sua senha"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+            <button 
+              type="submit"
+              className="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition"
+            >
+              Entrar
+            </button>
+          </form>
+
+          {/* Botão de Criar Conta */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-700">Não tem uma conta?</p>
+            <Link 
+              to="/signup"
+              className="inline-block mt-2 bg-gray-100 text-blue-500 px-4 py-2 rounded-full hover:bg-gray-200 transition"
+            >
+              Criar Conta
+            </Link>
+          </div>
         </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-gray-700">Senha:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg"
-          />
-        </div>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-full w-full hover:bg-blue-600 transition">
-          {isLogin ? "Entrar" : "Registrar"}
-        </button>
-        <p
-          className="text-center mt-4 text-blue-500 cursor-pointer"
-          onClick={() => setIsLogin(!isLogin)}
-        >
-          {isLogin ? "Criar uma conta" : "Já tem uma conta? Entrar"}
-        </p>
-      </form>
+      )}
     </div>
   );
 };

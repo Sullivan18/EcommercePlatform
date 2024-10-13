@@ -1,25 +1,34 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => {
-    // Carregar o carrinho do localStorage
-    const storedCart = localStorage.getItem("cartItems");
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
+  const [cartItems, setCartItems] = useState([]);
 
-  useEffect(() => {
-    // Armazenar o carrinho no localStorage sempre que mudar
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+  // Função para adicionar item ao carrinho
+  const addToCart = (item) => {
+    setCartItems((prevItems) => {
+      const itemInCart = prevItems.find((cartItem) => cartItem.id === item.id);
 
-  const addToCart = (product) => {
-    setCartItems((prevItems) => [...prevItems, product]);
+      if (itemInCart) {
+        // Se o item já estiver no carrinho, aumente a quantidade
+        return prevItems.map((cartItem) =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        // Caso contrário, adicione o novo item ao carrinho
+        return [...prevItems, { ...item, quantity: 1 }];
+      }
+    });
   };
 
-  const removeFromCart = (id) => {
-    setCartItems((prevItems) => prevItems.filter(item => item.id !== id));
+  // Função para remover item do carrinho
+  const removeFromCart = (itemId) => {
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.id !== itemId)
+    );
   };
 
   return (
