@@ -1,33 +1,81 @@
-import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
-import { useNavigate, Link } from 'react-router-dom'; // Importando Link e useNavigate
-import LoadingSpinner from '../components/LoadingSpinner';
+import React, { useState, useEffect } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, firestore } from "../firebase";
+import { useNavigate, Link } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { doc, getDoc } from "firebase/firestore";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
-  const navigate = useNavigate(); // Para redirecionar após o login
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    document.body.style.overflow = loading ? "hidden" : "auto";
+  }, [loading]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      // Autenticação com Firebase usando email e senha
-      await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
-      setLoading(false);
-      navigate('/'); // Redireciona para a Home após o login bem-sucedido
+      const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+      const user = userCredential.user;
+      console.log(credentials); // Para garantir que email e senha estão corretos
+
+      // Limita as chamadas ao Firestore somente se o usuário estiver autenticado
+      if (user) {
+        await loadUserRole(user);
+      } else {
+        throw new Error("Falha ao autenticar o usuário");
+      }
     } catch (error) {
       setLoading(false);
-      setError('Erro ao fazer login. Verifique suas credenciais.');
+      setError("Erro ao fazer login. Verifique suas credenciais.");
+      console.error("Erro no login:", error);
+    }
+  };
+
+  // Função para buscar o papel (role) do usuário no Firestore
+  const loadUserRole = async (user) => {
+    try {
+      const userDocRef = doc(firestore, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const role = userDoc.data().role || "user";
+
+        if (role === "admin") {
+          toast.info("Bem-vindo, Administrador!", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+          setTimeout(() => navigate("/EcommercePlatform/admin"), 3000);
+        } else {
+          toast.success("Login realizado com sucesso!", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
+          setTimeout(() => navigate("/EcommercePlatform"), 3000);
+        }
+      } else {
+        throw new Error("Usuário não encontrado.");
+      }
+    } catch (error) {
+      setError("Erro ao carregar dados do usuário.");
+      console.error("Erro ao buscar documento:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
+      <ToastContainer />
       {loading ? (
         <LoadingSpinner />
       ) : (
@@ -37,9 +85,9 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-              <input 
-                type="email" 
-                value={credentials.email} 
+              <input
+                type="email"
+                value={credentials.email}
                 onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                 placeholder="Insira seu email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -48,16 +96,16 @@ const Login = () => {
             </div>
             <div className="mb-6">
               <label className="block text-gray-700 text-sm font-bold mb-2">Senha</label>
-              <input 
-                type="password" 
-                value={credentials.password} 
+              <input
+                type="password"
+                value={credentials.password}
                 onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                 placeholder="Insira sua senha"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
-            <button 
+            <button
               type="submit"
               className="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition"
             >
@@ -65,10 +113,9 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Botão de Criar Conta */}
           <div className="mt-6 text-center">
             <p className="text-gray-700">Não tem uma conta?</p>
-            <Link 
+            <Link
               to="/signup"
               className="inline-block mt-2 bg-gray-100 text-blue-500 px-4 py-2 rounded-full hover:bg-gray-200 transition"
             >

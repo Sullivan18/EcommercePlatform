@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom'; // Removido BrowserRouter para evitar duplicidade
-import { AnimatePresence, motion } from 'framer-motion';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Products from './pages/Products';
-import Cart from './pages/Cart';
-import Login from './pages/Login';
-import { CartProvider } from './context/CartContext';
-import LoadingSpinner from './components/LoadingSpinner'; // Carregador de animação
+import React, { useState, useEffect } from "react";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  useLocation, 
+  Navigate
+} from "react-router-dom"; // Alterado para HashRouter
+import { AnimatePresence, motion } from "framer-motion";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+import Cart from "./pages/Cart";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import { CartProvider } from "./context/CartContext";
+import LoadingSpinner from "./components/LoadingSpinner"; // Carregador de animação
 
 const App = () => {
   const location = useLocation();
@@ -25,9 +32,9 @@ const App = () => {
   // Controlando a visibilidade da barra de rolagem
   useEffect(() => {
     if (loading) {
-      document.body.classList.add('overflow-hidden'); // Ocultar rolagem
+      document.body.classList.add("overflow-hidden"); // Ocultar rolagem
     } else {
-      document.body.classList.remove('overflow-hidden'); // Restaurar rolagem
+      document.body.classList.remove("overflow-hidden"); // Restaurar rolagem
     }
   }, [loading]);
 
@@ -54,10 +61,16 @@ const App = () => {
                 variants={pageTransition}
               >
                 <Routes location={location} key={location.key}>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/EcommercePlatform" element={<Home />} />
+                  <Route
+                    path="/"
+                    element={<Navigate to="/EcommercePlatform" />}
+                  />{" "}
+                  {/* Redireciona da raiz para a Home */}
                   <Route path="/products" element={<Products />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
                 </Routes>
               </motion.div>
             </AnimatePresence>
