@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
-import product1 from '../assets/gpu.jpeg'; // Certifique-se de que o caminho está correto
 import { motion } from 'framer-motion'; // Animações
+import CartContext from '../context/CartContext'; // Importa o CartContext
 
 const Products = () => {
-  const [products, setProducts] = useState([]);
+  const { products } = useContext(CartContext); // Acessa os produtos do CartContext
   const [loading, setLoading] = useState(true); // Estado de carregamento
 
   useEffect(() => {
-    // Simulação de carregamento de produtos com delay
+    // Simulação de carregamento (pode ser removida se já tiver produtos no contexto)
     setTimeout(() => {
-      setProducts([
-        { id: 1, name: "Produto 1", price: 100.00, imageUrl: product1 },
-        { id: 2, name: "Produto 2", price: 150.00, imageUrl: product1 },
-        { id: 3, name: "Produto 3", price: 200.00, imageUrl: product1 }
-      ]);
       setLoading(false); // Remover o estado de carregamento
     }, 1500);
 
+    // Atualiza o título da página e a meta descrição
     document.title = "Produtos - E-Commerce";
     document.querySelector('meta[name="description"]').setAttribute("content", "Confira nossos produtos e ofertas exclusivas!");
   }, []);

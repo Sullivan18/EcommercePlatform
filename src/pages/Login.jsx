@@ -14,7 +14,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = loading ? "hidden" : "auto";
+    // Força a barra de rolagem a ser sempre visível, evitando o "flicker"
+    document.body.style.overflow = "hidden";
+    document.body.style.width = "100%";
+
+    return () => {};
   }, [loading]);
 
   const handleLogin = async (e) => {

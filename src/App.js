@@ -72,7 +72,7 @@ const App = () => {
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
-                  <Route path="/admin" element={<AdminPanel />} /> {/* Somente administradores podem acessar */}
+                  <Route path="/EcommercePlatform/admin" element={<AdminPanel />} /> {/* Somente administradores podem acessar */}
 
                 </Routes>
               </motion.div>

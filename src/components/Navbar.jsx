@@ -92,7 +92,7 @@ const Navbar = () => {
 
           {/* Exibe o link do Admin Panel somente se o usuário for administrador */}
           {isAdmin && (
-            <Link to="/admin" className="text-gray-600 hover:text-blue-600 transition">Admin Panel</Link>
+            <Link to="/EcommercePlatform/admin" className="text-gray-600 hover:text-blue-600 transition">Admin Panel</Link>
           )}
         </div>
 
