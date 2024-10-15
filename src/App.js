@@ -13,6 +13,7 @@ import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import AdminPanel from "./components/AdminPanel"; // Importa o componente AdminPanel
 import { CartProvider } from "./context/CartContext";
 import LoadingSpinner from "./components/LoadingSpinner"; // Carregador de animação
 
@@ -71,6 +72,8 @@ const App = () => {
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/admin" element={<AdminPanel />} /> {/* Somente administradores podem acessar */}
+
                 </Routes>
               </motion.div>
             </AnimatePresence>

@@ -29,7 +29,7 @@ const Login = () => {
 
       // Limita as chamadas ao Firestore somente se o usuário estiver autenticado
       if (user) {
-        await loadUserRole(user);
+        await checkUserRole(user); // Chama a função que verifica o papel do usuário
       } else {
         throw new Error("Falha ao autenticar o usuário");
       }
@@ -41,13 +41,14 @@ const Login = () => {
   };
 
   // Função para buscar o papel (role) do usuário no Firestore
-  const loadUserRole = async (user) => {
+  const checkUserRole = async (user) => {
     try {
       const userDocRef = doc(firestore, "users", user.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
-        const role = userDoc.data().role || "user";
+        const userData = userDoc.data();
+        const role = userData.role || "user";
 
         if (role === "admin") {
           toast.info("Bem-vindo, Administrador!", {

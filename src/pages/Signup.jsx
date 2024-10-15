@@ -9,7 +9,7 @@ import { firestore } from "../firebase"; // Importa Firestore
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" }); // Removi o campo role
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -31,10 +31,10 @@ const Signup = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
       const user = userCredential.user;
   
-      // Cria o documento no Firestore com o campo `role`
+      // Cria o documento no Firestore com o campo `role` como "user"
       await setDoc(doc(firestore, "users", user.uid), {
         email: user.email,
-        role: "user" // Define o `role` como user por padrão
+        role: "user" // Define o `role` como "user" por padrão
       });
   
       setLoading(false);
@@ -117,9 +117,5 @@ const Signup = () => {
     </div>
   );
 };
-/*
-admin@admin.com
-admin123
-*/
 
 export default Signup;

@@ -9,6 +9,28 @@ body {
 
 
 
+/* Estilizando a barra de rolagem para ser minimalista */
+::-webkit-scrollbar {
+  width: 5px; /* Define a largura da barra de rolagem */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Deixa o fundo da barra de rolagem transparente */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* Define uma cor suave e transparente para o 'thumb' */
+  border-radius: 10px; /* Arredonda os cantos da barra para um visual mais suave */
+  border: 2px solid transparent; /* Deixa espaço ao redor do thumb para criar efeito de borda */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5); /* Muda para uma cor mais visível ao passar o mouse */
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: rgba(0, 0, 0, 0.7); /* Torna a barra mais visível enquanto arrasta */
+}
 
 
 code {

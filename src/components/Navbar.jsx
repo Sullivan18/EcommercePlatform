@@ -1,19 +1,27 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX, FiTrash2 } from 'react-icons/fi';
 import CartContext from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { auth, firestore } from '../firebase'; // Importa autenticação e Firestore
+import { signOut } from 'firebase/auth'; // Importa a função de logout
+import { doc, getDoc } from 'firebase/firestore';
 
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Estado para controle do dropdown
   const { cartItems, removeFromCart } = useContext(CartContext);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // Estado para verificar se é admin
+  const [userName, setUserName] = useState(""); // Estado para armazenar o nome do usuário logado
+  const navigate = useNavigate(); // Hook de navegação para redirecionar o usuário após o logout
 
   const toggleCart = () => setIsCartOpen(!isCartOpen);
   const closeCart = () => setIsCartOpen(false); // Função para fechar o carrinho
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen); // Função para abrir/fechar o dropdown
 
   // Monitora mudanças nos itens do carrinho
   useEffect(() => {
@@ -27,6 +35,48 @@ const Navbar = () => {
   // Função para calcular o total do carrinho
   const cartTotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
+  // Verifica se o usuário está logado e define o nome de usuário e se ele é admin
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        // Extração do nome antes do '@' do email
+        const extractedName = user.email.split('@')[0];
+        setUserName(extractedName);
+
+        try {
+          const userDoc = doc(firestore, "users", user.uid);
+          const docSnap = await getDoc(userDoc);
+
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            if (userData.role === "admin") {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
+          }
+        } catch (error) {
+          console.error("Erro ao verificar papel do usuário:", error);
+        }
+      } else {
+        setUserName(""); // Se não houver usuário, reseta o nome
+      }
+    };
+
+    checkUserRole();
+  }, []);
+
+  // Função para fazer logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Desconecta o usuário
+      navigate('/login'); // Redireciona para a página de login após o logout
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-white shadow-lg transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
@@ -39,6 +89,11 @@ const Navbar = () => {
           <Link to="/products" className="text-gray-600 hover:text-blue-600 transition">Produtos</Link>
           <Link to="/about" className="text-gray-600 hover:text-blue-600 transition">Sobre Nós</Link>
           <Link to="/contact" className="text-gray-600 hover:text-blue-600 transition">Contato</Link>
+
+          {/* Exibe o link do Admin Panel somente se o usuário for administrador */}
+          {isAdmin && (
+            <Link to="/admin" className="text-gray-600 hover:text-blue-600 transition">Admin Panel</Link>
+          )}
         </div>
 
         {/* Barra de Busca */}
@@ -66,9 +121,34 @@ const Navbar = () => {
               </span>
             )}
           </motion.button>
-          <Link to="/login">
-            <FiUser size={24} className="text-gray-600 hover:text-blue-600 transition" />
-          </Link>
+
+          {/* Verifica se o usuário está logado */}
+          {userName ? (
+            <div className="relative">
+              <button onClick={toggleDropdown} className="flex items-center space-x-2 focus:outline-none">
+                <FiUser size={24} className="text-gray-600 hover:text-blue-600 transition" />
+                <span className="text-gray-600 hover:text-blue-600">{userName}</span>
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
+                  <div className="p-4">
+                    <p className="text-gray-600">Logado como <strong>{userName}</strong></p>
+                    <button
+                      onClick={handleLogout}
+                      className="text-red-600 hover:text-red-800 mt-2 block w-full text-left"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link to="/login" className="flex items-center space-x-2">
+              <FiUser size={24} className="text-gray-600 hover:text-blue-600 transition" />
+              <span className="text-gray-600 hover:text-blue-600">Login</span>
+            </Link>
+          )}
         </div>
 
         {/* Menu Mobile */}
